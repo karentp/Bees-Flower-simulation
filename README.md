@@ -1,2 +1,2 @@
-# Bees-Flower-simulation-with-genetic-algorithms
+# Bees-Flower-simulation
 Proyecto de Análisis de Algoritmos utilizando algoritmos genéticos y optimización.
