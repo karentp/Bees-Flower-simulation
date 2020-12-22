@@ -1,6 +1,11 @@
 from random import randrange
 from Bee import Bee
 from Flower import Flower
+from Scenario import Scenario
+
+#Main settings
+w = h = 100
+scenario = Scenario()
 
 bees_quantity = 20
 flowers_quantity = 4
@@ -8,6 +13,23 @@ current_generation=[]
 field_height = 100
 flowers_generation=[]
 new_generation_flowers = []
+
+def settings():
+    size(w,h)
+    
+def setup():
+    background(0)
+    colorMode(HSB)
+    global scenario
+    scenario.draw()
+    
+def draw():
+    pass
+
+##############################################################################
+###########################Cosas generales####################################
+#Funciones generales
+
 
 def binary_to_decimal( binary): 
     decimal, i= 0, 0
@@ -19,7 +41,7 @@ def binary_to_decimal( binary):
         i += 1
     return decimal 
 
-def polar_to_xy():
+def polar_to_xy(flower):
     pass
   
 def random_tests():
@@ -32,6 +54,7 @@ def random_tests():
     flowers_generation[1].polen_other_flowers = [flowers_generation[1], flowers_generation[2], flowers_generation[3]]
     flowers_generation[2].polen_other_flowers = [flowers_generation[0], flowers_generation[1], flowers_generation[2], flowers_generation[3]]
     flowers_generation[3].polen_other_flowers = [flowers_generation[3]]
+
 
 
 ##############################################################################
@@ -171,13 +194,19 @@ def main():
     random_tests()
   
     generation_of_bees = bee_selection(current_generation)
-    print("New gen \n")
+    print("new gen \n")
     for bee in generation_of_bees:
         print(bee.to_string())
     crossover(generation_of_bees, [])
     for bee in new_gen:
         print(bee.to_string())
         
+    print("FLOREEEEEEEEES")
     flower_selection_and_crossover()
+    
+    for flower in new_generation_flowers:
+        flower.to_string()
+        
+    print(len(new_generation_flowers))
     
 main()
