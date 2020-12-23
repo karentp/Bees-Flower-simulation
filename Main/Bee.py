@@ -39,10 +39,11 @@ class Bee():
     self.selection_score = 0
     self.normalized_score = 0.0
     self.selection_range = []
+    self.parents = []
     
 
   def to_string(self):
-    print(" color: ", self.color, "\n", "orientacion: ", self.orientation, "\n", "angulo: ", self.angle, "\n", "radio: ", self.radio, "\n", "path: ", self.path, "\n", "prob segunda busqueda: ", self.second_search, "\n", "cromosoma", self.cromosoma, "\n")
+    print(" color: ", self.color, "\n", "orientacion: ", self.orientation, "\n", "angulo: ", self.angle, "\n", "radio: ", self.radio, "\n", "path: ", self.path, "\n", "prob segunda busqueda: ", self.second_search, "\n", "cromosoma", self.cromosoma, "\n", "Padres: ", self.parents, "\n")
 
 
   def convert_to_binary(self, gen_value, gen_type):
@@ -67,3 +68,6 @@ class Bee():
   def adaptability_function(self):
     self.selection_score = float(len(self.flores_visitadas) / float(self.distancia_recorrida))*100
     return self.selection_score
+
+  def set_parents(self, parent):
+      self.parents.append(parent)
