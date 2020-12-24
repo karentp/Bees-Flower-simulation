@@ -32,7 +32,7 @@ class Bee():
     self.orientation = self.orientations[orientation]
     self.angle = self.angles[angle]
     self.radio = self.radios[radio]
-    self.path = self.paths[path]
+    self.path = self.paths[(path-1)]
     self.second_search = second_search
     self.flores_visitadas = []
     self.distancia_recorrida = 0
@@ -66,7 +66,11 @@ class Bee():
     
   #Funcion de adaptabilidad
   def adaptability_function(self):
-    self.selection_score = float(len(self.flores_visitadas) / float(self.distancia_recorrida))*100
+    if self.distancia_recorrida != 0:
+        self.selection_score = float(len(self.flores_visitadas) / float(self.distancia_recorrida))*100
+    else:
+        self.selection_score = 0
+        
     return self.selection_score
 
   def set_parents(self, parent):

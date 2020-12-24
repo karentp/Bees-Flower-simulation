@@ -8,8 +8,8 @@ from Tree import Tree
 w = h = 100
 scenario = Scenario()
 
-bees_quantity = 6
-flowers_quantity = 4
+bees_quantity = 20
+flowers_quantity = 200
 current_generation=[]
 field_height = 100
 flowers_generation=[]
@@ -25,7 +25,8 @@ def setup():
     scenario.draw()
     
 def draw():
-    pass
+    
+    main()
 
 ##############################################################################
 ###########################Cosas generales####################################
@@ -109,7 +110,10 @@ def crossover(bees_to_cross,new_generation_bees):
   else:
     print("CRUCE")
     bee_1 = bees_to_cross[0]
-    bee_2 = bees_to_cross[1]
+    if len(bees_to_cross) <=1:
+        bee_2 = current_generation[3]
+    else:
+        bee_2 = bees_to_cross[1]
     print("bee1", bee_1.color)
     print("bee2", bee_2.color)
     
@@ -135,6 +139,8 @@ def crossover(bees_to_cross,new_generation_bees):
 #Cromosoma de abejas
 def cromosoma_to_bee(cromosoma):
     second_search = binary_to_decimal(cromosoma[:6])
+    print("SLICE SEARCH", cromosoma[:6])
+    print("SLICE PATH", cromosoma[6:8])
     path = binary_to_decimal(cromosoma[6:8])
     radio = binary_to_decimal(cromosoma[8:11]) 
     angle = binary_to_decimal(cromosoma[11:14]) 
@@ -150,6 +156,7 @@ def cromosoma_to_bee(cromosoma):
 def mutation(generation_to_mutate):
     cantidad_cambios = 4
     for i in range(cantidad_cambios):
+        print("WENAS", bees_quantity)
         place_for_mutation =(randrange(bees_quantity), randrange(20))
         bee_to_change = generation_to_mutate[place_for_mutation[0]]
         new_cromosoma= bee_to_change.cromosoma
@@ -164,8 +171,10 @@ def mutation(generation_to_mutate):
             cromosoma_list = list(new_cromosoma)
             cromosoma_list[place_for_mutation[1]] = "1"
             new_cromosoma = "".join(cromosoma_list)
-
+        
+        print("NEW CROMOSOMA", new_cromosoma)
         bee_mutated = cromosoma_to_bee(new_cromosoma) #abeja que mutó 
+        print("Abeja mutada", bee_mutated.cromosoma)
         bee_mutated.set_parents(bee_to_change.parents[0])
         bee_mutated.set_parents(bee_to_change.parents[1])
         new_gen[place_for_mutation[0]] = bee_mutated #reemplazar por la abeja mutada
@@ -178,13 +187,21 @@ def mutation(generation_to_mutate):
 #Cruce de flores
 def flower_selection_and_crossover():
     for flower in flowers_generation:
-        print("flower", flower)
+        print("flower1", flower.cromosoma)
         print(len(flower.polen_other_flowers))
+        
+        if(len(flower.polen_other_flowers) == 0):
+               flower.polen_other_flowers.append(flowers_generation[0])
+               
         random_index = randrange(len(flower.polen_other_flowers))
+        
         flower_2 = flower.polen_other_flowers[random_index]
-        print("flower2", flower_2)
+        print("flower2", flower_2.cromosoma)
         cut_section = randrange(13)
-        new_flower =  cromosoma_to_flower(flower.cromosoma[:cut_section] + flower_2.cromosoma[cut_section:])
+        print("new flower part 1", flower.cromosoma[:cut_section])
+        print("new flower part 2", flower_2.cromosoma[cut_section:])
+        new_flower =  cromosoma_to_flower(flower.cromosoma[:cut_section] + flower_2.cromosoma[cut_section+1:])
+    
         new_generation_flowers.append(new_flower)
 
 
@@ -213,9 +230,27 @@ def travers_path(bee,tree):
     elif bee.path == 1: #anchura
         recorrido = tree.LevelOrder(tree.root)
     else: #random
-        recorrido = tree.LevelOrder(tree.root)
+        pos = randrange(2)
+        if (pos == 0):
+            recorrido = tree.LevelOrder(tree.root)
+        else:
+            recorrido = tree.Preorder(tree.root, [])
     
     print("RECORRIDO", recorrido)
+   
+    for flower in recorrido:
+        if bee.color == flower.color:
+            #polinizar y agregar polen a las flores
+            flower.polen_other_flowers = bee.flores_visitadas
+            bee.flores_visitadas.append(flower)
+        else:
+            probability = randrange(101)
+            if probability <= bee.second_search:
+                #visita la flor que no le gusta por probabilidad
+                flower.polen_other_flowers = bee.flores_visitadas
+                bee.flores_visitadas.append(flower)
+    
+    bee.distancia_recorrida = len(recorrido)
         
 
 
@@ -325,7 +360,7 @@ def main():
   
   
   
-    """bees_to_cross = bee_selection(current_generation)
+    bees_to_cross = bee_selection(current_generation)
     print("Bees to cross\n")
     for bee in bees_to_cross:
         print(bee.to_string())
@@ -353,4 +388,3 @@ def main():
         
     print(len(new_generation_flowers))"""
     
-main()
