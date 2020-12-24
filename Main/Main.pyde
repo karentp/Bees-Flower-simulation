@@ -5,8 +5,9 @@ from Scenario import Scenario
 from Tree import Tree
 
 #Main settings
-w = h = 100
+w = h = 500
 scenario = Scenario()
+notes_generation = []
 
 bees_quantity = 20
 flowers_quantity = 200
@@ -19,14 +20,46 @@ def settings():
     size(w,h)
     
 def setup():
-    background(0)
-    colorMode(HSB)
+    background(255)
+    noStroke()
     global scenario
-    scenario.draw()
+    
+    #primera generacion de abejas, totalmente random
+    for i in range(bees_quantity):
+        color = randrange(8)
+        orientation = randrange(8)
+        angle = randrange(8)
+        radio = randrange(8)
+        path = randrange(3)
+        #print("path", path)
+        second_search = randrange(64)
+        bee= Bee(color, orientation, angle, radio,path, second_search)
+        bee.cromosoma = bee.make_cromosoma()
+        current_generation.append(bee)
+        #print("BEE #: ", i)
+        #bee.to_string()
+
+    print("\n")
+    #primera generacion de flores
+        
+    for i in range(flowers_quantity):
+        color_flower = randrange(8)
+        angle = randrange(16)
+        #print("angle random", angle)
+        radio = randrange(16)
+        #print("radio random", radio)
+        quadrant = randrange(4)
+        flower = Flower(color_flower, radio, angle, quadrant)
+        flower.cromosoma = flower.make_flower_cromosoma()
+        flowers_generation.append(flower)
+        #print("FLOWER #: ", i)
+        #flower.to_string()
     
 def draw():
     
     main()
+    scenario.draw(w,h, flowers_generation)
+    print("NOTAS", notes_generation)
 
 ##############################################################################
 ###########################Cosas generales####################################
@@ -67,9 +100,13 @@ def bee_selection(current_generation):
     total_sum = 0
     for bee in current_generation:
         total_sum += bee.adaptability_function()
+        notes_generation.append((total_sum)/(bees_quantity))
 
     for bee in current_generation:
-        bee.normalized_score = bee.selection_score / total_sum
+        if(total_sum == 0):
+            bee_normalized_score = 0.4
+        else:
+            bee.normalized_score = bee.selection_score / total_sum
   
     i = 0
     probability_list = []
@@ -82,7 +119,7 @@ def bee_selection(current_generation):
     selected_bees = []
     #num = [0] * bees_quantity
     
-    print("Probabilistic list", probability_list)
+    #print("Probabilistic list", probability_list)
     #num = randrange(101)/100
     #print("NUMBER", num)
     
@@ -91,11 +128,11 @@ def bee_selection(current_generation):
         #num[i] = randrange(101)/100
         #Buscar la abeja que está dentro de ese rango
         num = float(randrange(101))/100
-        print("NUMBER", num)
+        #print("NUMBER", num)
         for prob in probability_list:
-            print("prueba", prob[1])
+            #print("prueba", prob[1])
             if num <= prob[1]:
-                print("prob limite superior", prob[1])
+                #print("prob limite superior", prob[1])
                 selected_bees.append(prob[2])
                 break
     return selected_bees
@@ -114,40 +151,40 @@ def crossover(bees_to_cross,new_generation_bees):
         bee_2 = current_generation[3]
     else:
         bee_2 = bees_to_cross[1]
-    print("bee1", bee_1.color)
-    print("bee2", bee_2.color)
+    #print("bee1", bee_1.color)
+    #print("bee2", bee_2.color)
     
     slice_point = randrange(20)#El cromosoma es de 20 bits
-    print("slice", slice_point)
+    #print("slice", slice_point)
     new_bee_1 = cromosoma_to_bee(bee_2.cromosoma[:slice_point] + bee_1.cromosoma[slice_point:])
     new_bee_1.set_parents(bee_1)
     new_bee_1.set_parents(bee_2)
     new_generation_bees.append(new_bee_1)
-    print("new 1", bee_2.cromosoma[:slice_point] + bee_1.cromosoma[slice_point:])
+    #print("new 1", bee_2.cromosoma[:slice_point] + bee_1.cromosoma[slice_point:])
     
     slice_point = randrange(20)
-    print("slice2", slice_point)
+    #print("slice2", slice_point)
     
     new_bee_2 = cromosoma_to_bee(bee_1.cromosoma[:slice_point] + bee_2.cromosoma[slice_point:])
     new_bee_2.set_parents(bee_1)
     new_bee_2.set_parents(bee_2)
     new_generation_bees.append(new_bee_2)
-    print("new 2",  bee_1.cromosoma[slice_point:] + bee_2.cromosoma[:slice_point])
+    #print("new 2",  bee_1.cromosoma[slice_point:] + bee_2.cromosoma[:slice_point])
     crossover(bees_to_cross[2:], new_generation_bees)
     
 
 #Cromosoma de abejas
 def cromosoma_to_bee(cromosoma):
     second_search = binary_to_decimal(cromosoma[:6])
-    print("SLICE SEARCH", cromosoma[:6])
-    print("SLICE PATH", cromosoma[6:8])
+    #print("SLICE SEARCH", cromosoma[:6])
+    #print("SLICE PATH", cromosoma[6:8])
     path = binary_to_decimal(cromosoma[6:8])
     radio = binary_to_decimal(cromosoma[8:11]) 
     angle = binary_to_decimal(cromosoma[11:14]) 
     orientation = binary_to_decimal(cromosoma[14:17])
     color = binary_to_decimal(cromosoma[17:])
     
-    print(color, orientation, angle, radio, path, second_search)
+    #print(color, orientation, angle, radio, path, second_search)
     bee= Bee(int(color), int(orientation), int(angle), int(radio), int(path), int(second_search))
     bee.cromosoma = bee.make_cromosoma()
 
@@ -172,9 +209,9 @@ def mutation(generation_to_mutate):
             cromosoma_list[place_for_mutation[1]] = "1"
             new_cromosoma = "".join(cromosoma_list)
         
-        print("NEW CROMOSOMA", new_cromosoma)
+        #print("NEW CROMOSOMA", new_cromosoma)
         bee_mutated = cromosoma_to_bee(new_cromosoma) #abeja que mutó 
-        print("Abeja mutada", bee_mutated.cromosoma)
+        #print("Abeja mutada", bee_mutated.cromosoma)
         bee_mutated.set_parents(bee_to_change.parents[0])
         bee_mutated.set_parents(bee_to_change.parents[1])
         new_gen[place_for_mutation[0]] = bee_mutated #reemplazar por la abeja mutada
@@ -187,8 +224,8 @@ def mutation(generation_to_mutate):
 #Cruce de flores
 def flower_selection_and_crossover():
     for flower in flowers_generation:
-        print("flower1", flower.cromosoma)
-        print(len(flower.polen_other_flowers))
+        #print("flower1", flower.cromosoma)
+        #print(len(flower.polen_other_flowers))
         
         if(len(flower.polen_other_flowers) == 0):
                flower.polen_other_flowers.append(flowers_generation[0])
@@ -196,10 +233,10 @@ def flower_selection_and_crossover():
         random_index = randrange(len(flower.polen_other_flowers))
         
         flower_2 = flower.polen_other_flowers[random_index]
-        print("flower2", flower_2.cromosoma)
+        #print("flower2", flower_2.cromosoma)
         cut_section = randrange(13)
-        print("new flower part 1", flower.cromosoma[:cut_section])
-        print("new flower part 2", flower_2.cromosoma[cut_section:])
+        #print("new flower part 1", flower.cromosoma[:cut_section])
+        #print("new flower part 2", flower_2.cromosoma[cut_section:])
         new_flower =  cromosoma_to_flower(flower.cromosoma[:cut_section] + flower_2.cromosoma[cut_section+1:])
     
         new_generation_flowers.append(new_flower)
@@ -221,9 +258,9 @@ def cromosoma_to_flower(cromosoma):
 
 def travers_path(bee,tree):
     recorrido=[]
-    print("TREE 2")
-    tree.print_tree()
-    print("path", bee.path)
+    #print("TREE 2")
+    #tree.print_tree()
+    #print("path", bee.path)
     if bee.path == 0: #profundidad
         recorrido = tree.Preorder(tree.root,[])
     
@@ -236,7 +273,7 @@ def travers_path(bee,tree):
         else:
             recorrido = tree.Preorder(tree.root, [])
     
-    print("RECORRIDO", recorrido)
+    #print("RECORRIDO", recorrido)
    
     for flower in recorrido:
         if bee.color == flower.color:
@@ -251,6 +288,8 @@ def travers_path(bee,tree):
                 bee.flores_visitadas.append(flower)
     
     bee.distancia_recorrida = len(recorrido)
+    print("DISTANCIA RECO", bee.distancia_recorrida)
+    print("FLORES VISIT", len(bee.flores_visitadas))
         
 
 
@@ -299,60 +338,29 @@ def search_scope(bee, flower_generation):
     tree = Tree()
     for flower in flower_generation:
         if (flower.radio <= bee.radio):
-            print("RADIO ES MENOR")
+            #print("RADIO ES MENOR")
             if(bee.orientation == "E" or (bee.orientation =="NE" and bee.angle <=45) or (bee.orientation == "SE" and bee.angle >= 45)):
-                print("casos especiales")
-                print("angulo de flor", flower.angle, " inf angle ", inf_angle, "sup angle ", sup_angle)
+                #print("casos especiales")
+                #print("angulo de flor", flower.angle, " inf angle ", inf_angle, "sup angle ", sup_angle)
                 if(flower.angle <= inf_angle and flower.angle >= sup_angle):
-                    print("entra especiales")
+                    #print("entra especiales")
                     tree.insert(tree.root,flower)
-                    print("root1") 
+                    #print("root1") 
             else:
-                print("orientacion")
-                print("angulo de flor", flower.angle, " inf angle ", inf_angle, "sup angle ", sup_angle)
+                #print("orientacion")
+                #print("angulo de flor", flower.angle, " inf angle ", inf_angle, "sup angle ", sup_angle)
                 if(flower.angle >= inf_angle and flower.angle <= sup_angle):
-                    print("ENTRA")
+                    #print("ENTRA")
                     tree.insert(tree.root,flower)
-                    print("root")
-    print("SALE")
+                    #print("root")
+    #print("SALE")
     tree.print_tree()
     travers_path(bee,tree)
 
 def main():
-#primera generacion de abejas, totalmente random
-    for i in range(bees_quantity):
-        color = randrange(8)
-        orientation = randrange(8)
-        angle = randrange(8)
-        radio = randrange(8)
-        path = randrange(3)
-        print("path", path)
-        second_search = randrange(64)
-        bee= Bee(color, orientation, angle, radio,path, second_search)
-        bee.cromosoma = bee.make_cromosoma()
-        current_generation.append(bee)
-        print("BEE #: ", i)
-        bee.to_string()
-
-    print("\n")
-    #primera generacion de flores
-        
-    for i in range(flowers_quantity):
-        color_flower = randrange(8)
-        angle = randrange(16)
-        print("angle random", angle)
-        radio = randrange(16)
-        print("radio random", radio)
-        quadrant = randrange(4)
-        flower = Flower(color_flower, radio, angle, quadrant)
-        flower.cromosoma = flower.make_flower_cromosoma()
-        flowers_generation.append(flower)
-        print("FLOWER #: ", i)
-        flower.to_string()
-
-    random_tests()
   
     #Busqueda
+    global flowers_generation
     
     for bee in current_generation:
         search_scope(bee, flowers_generation)
@@ -363,19 +371,22 @@ def main():
     bees_to_cross = bee_selection(current_generation)
     print("Bees to cross\n")
     for bee in bees_to_cross:
-        print(bee.to_string())
+        #print(bee.to_string())
+        pass
         
     crossover(bees_to_cross, [])
     
     print("New bees generation")
     for bee in new_gen:
-        print(bee.to_string())
+        #print(bee.to_string())
+        pass
         
     mutation(new_gen)
     
     print("New bees generation MUTATED")
     for bee in new_gen:
-        print(bee.to_string())
+        #print(bee.to_string())
+        pass
     
         
     print("FLOREEEEEEEEES")
@@ -384,7 +395,8 @@ def main():
     
     
     for flower in new_generation_flowers:
-        flower.to_string()
+        pass
+        #flower.to_string()
         
-    print(len(new_generation_flowers))"""
-    
+    #print(len(new_generation_flowers))"""
+    flowers_generation = new_generation_flowers

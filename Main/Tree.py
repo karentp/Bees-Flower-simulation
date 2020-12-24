@@ -29,12 +29,14 @@ class Tree():
   def insert(self,temp, key):
     temp = self.root
     if self.root is None:
-      print("root actual", self.root)
+        pass
+      #print("root actual", self.root)
     else:
-       print("root actual", self.root)
+        pass
+       #print("root actual", self.root)
     if self.root is None:
       self.root = self.newNode(key)
-      print("root", self.root.key)
+      #print("root", self.root.key)
       return
     q = [] 
     q.append(temp) 

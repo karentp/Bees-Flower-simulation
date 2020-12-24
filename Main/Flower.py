@@ -23,7 +23,8 @@ class Flower():
     self.quadrant = quadrant + 1 
     self.polen_other_flowers = []
     self.transform_angle()
-    print("Angle",self.angle)
+    #print("Angle",self.angle)
+    
     
   def add_polen(self, flower):
     self.polen_other_flowers.append(flower)
@@ -37,11 +38,13 @@ class Flower():
     cromosoma =""
     cromosoma += self.convert_to_binary(self.quadrant, "quadrant")
     cromosoma += self.convert_to_binary(self.radios.index(self.radio), "radio")
-    print("angulos", self.angles)
-    print("inidice", self.angles.index(self.angle_original))
+    
+    #print("angulos", self.angles)
+    #print("inidice", self.angles.index(self.angle_original))
     cromosoma += self.convert_to_binary(self.angles.index(self.angle_original), "angle")
     cromosoma += self.convert_to_binary(self.colors.index(self.color), "color")
     
+    self.cromosoma = cromosoma
     return cromosoma
 
   def to_string(self):
