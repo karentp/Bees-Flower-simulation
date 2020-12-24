@@ -13,4 +13,4 @@ class Scenario():
     def draw_flowers(self, flowers_gen,h):
         for flower in flowers_gen:
             fill(flower.color[0], flower.color[1], flower.color[2])        
-            ellipse((((h*flower.radio)/100)*cos(radians(flower.angle))),(((h*flower.radio)/100)*sin(radians(flower.angle))),3,3)
+            ellipse((((h+230*flower.radio)/100)*cos(radians(flower.angle))),(((h+230*flower.radio)/100)*sin(radians(flower.angle))),7,7)

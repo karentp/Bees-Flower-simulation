@@ -9,8 +9,8 @@ w = h = 500
 scenario = Scenario()
 notes_generation = []
 
-bees_quantity = 4
-flowers_quantity = 30
+bees_quantity = 40
+flowers_quantity = 300
 current_generation=[]
 field_height = 100
 flowers_generation=[]
@@ -23,6 +23,7 @@ def setup():
     background(255)
     noStroke()
     global scenario
+    global flowers_generation
     
     #primera generacion de abejas, totalmente random
     for i in range(bees_quantity):
@@ -34,6 +35,8 @@ def setup():
         second_search = randrange(64)
         bee= Bee(color, orientation, angle, radio,path, second_search)
         bee.cromosoma = bee.make_cromosoma()
+        bee.set_parents(bee)
+        bee.set_parents(bee)
         current_generation.append(bee)
 
     print("\n")
@@ -44,9 +47,19 @@ def setup():
         angle = randrange(16)
         radio = randrange(16)
         quadrant = randrange(4)
+        
+        for flower in flowers_generation:
+            while True:
+                if (flower.angle_original == angle and flower.radio == radio and flower.quadrant == quadrant):
+                    angle = randrange(16)
+                    radio = randrange(16)
+                else:
+                    break
+        
         flower = Flower(color_flower, radio, angle, quadrant)
         flower.cromosoma = flower.make_flower_cromosoma()
         flowers_generation.append(flower)
+        
     
 def draw():
     global flowers_generation
@@ -99,7 +112,7 @@ def bee_selection(current_generation):
     total_sum = 0
     for bee in current_generation:
         total_sum += bee.adaptability_function()
-        notes_generation.append((total_sum)/(bees_quantity*100))
+        notes_generation.append((total_sum))
 
     for bee in current_generation:
         if(total_sum == 0):
@@ -144,7 +157,7 @@ def crossover(bees_to_cross,new_generation_bees):
   else:
     bee_1 = bees_to_cross[0]
     if len(bees_to_cross) <=1:
-        bee_2 = current_generation[3]
+        bee_2 = current_generation[randrange(len(current_generation))]
     else:
         bee_2 = bees_to_cross[1]
     
@@ -180,11 +193,18 @@ def cromosoma_to_bee(cromosoma):
     return bee
 
 def mutation(generation_to_mutate):
-    cantidad_cambios = 4
+    global current_generation
+    global new_gen
+    cantidad_cambios = 60
     for i in range(cantidad_cambios):
         print("WENAS", bees_quantity)
-        place_for_mutation =(randrange(bees_quantity), randrange(20))
+        if len(new_gen) ==0:
+            generation_to_mutate = current_generation
+            place_for_mutation =(randrange(len(generation_to_mutate)), randrange(20))
+        else:
+            place_for_mutation =(randrange(len(new_gen)), randrange(20))
         
+    
         
         bee_to_change = generation_to_mutate[place_for_mutation[0]]
         new_cromosoma= bee_to_change.cromosoma
@@ -201,7 +221,11 @@ def mutation(generation_to_mutate):
         bee_mutated = cromosoma_to_bee(new_cromosoma) #abeja que mutó 
         bee_mutated.set_parents(bee_to_change.parents[0])
         bee_mutated.set_parents(bee_to_change.parents[1])
-        new_gen[place_for_mutation[0]] = bee_mutated #reemplazar por la abeja mutada
+        if len(new_gen) == 0:
+            new_gen.append(bee_mutated)
+        else:
+            
+            new_gen[place_for_mutation[0]] = bee_mutated #reemplazar por la abeja mutada
         
         
 
@@ -216,7 +240,7 @@ def flower_selection_and_crossover():
     for flower in flowers_generation:
         
         if(len(flower.polen_other_flowers) == 0):
-               flower.polen_other_flowers.append(flowers_generation[0])
+               flower.polen_other_flowers.append(flowers_generation[(randrange(len(flowers_generation)))])
                
         random_index = randrange(len(flower.polen_other_flowers))
         
@@ -228,10 +252,20 @@ def flower_selection_and_crossover():
 
 
 def cromosoma_to_flower(cromosoma):
+    global flowers_generation
     quadrant = binary_to_decimal(cromosoma[:2])
     radio = binary_to_decimal(cromosoma[2:6]) 
     angle = binary_to_decimal(cromosoma[6:10]) 
     color = binary_to_decimal(cromosoma[10:])
+    
+    for flower in flowers_generation:
+            while True:
+                if (flower.angle_original == angle and flower.radio == radio and flower.quadrant == quadrant):
+                    angle = randrange(16)
+                    radio = randrange(16)
+                else:
+                    break
+    
     flower= Flower(int(color), int(radio), int(angle), int(quadrant))
     flower.make_flower_cromosoma()
 
@@ -354,7 +388,7 @@ def main():
         #print(bee.to_string())
         pass
         
-    #mutation(new_gen)
+    mutation(new_gen)
     
     print("New bees generation MUTATED")
     for bee in new_gen:
