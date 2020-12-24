@@ -2,6 +2,7 @@ from random import randrange
 from Bee import Bee
 from Flower import Flower
 from Scenario import Scenario
+from Tree import Tree
 
 #Main settings
 w = h = 100
@@ -201,6 +202,23 @@ def cromosoma_to_flower(cromosoma):
 
 ##########################BÚSQUEDA#####################################
 
+def travers_path(bee,tree):
+    recorrido=[]
+    print("TREE 2")
+    tree.print_tree()
+    print("path", bee.path)
+    if bee.path == 0: #profundidad
+        recorrido = tree.Preorder(tree.root,[])
+    
+    elif bee.path == 1: #anchura
+        recorrido = tree.LevelOrder(tree.root)
+    else: #random
+        recorrido = tree.LevelOrder(tree.root)
+    
+    print("RECORRIDO", recorrido)
+        
+
+
 def search_scope(bee, flower_generation):
     if (bee.orientation == "N"):
         inf_angle = 90 - bee.angle
@@ -242,14 +260,28 @@ def search_scope(bee, flower_generation):
             inf_angle = bee.angle
             sup_angle = 270 - (bee.angle-45)
     
+    
+    tree = Tree()
     for flower in flower_generation:
         if (flower.radio <= bee.radio):
-            if(bee.orientation == "E" or (bee.orientation =="NE" and bee.angle <=45) or (bee.orientation == "SE" and bee.angle >=)):
+            print("RADIO ES MENOR")
+            if(bee.orientation == "E" or (bee.orientation =="NE" and bee.angle <=45) or (bee.orientation == "SE" and bee.angle >= 45)):
+                print("casos especiales")
+                print("angulo de flor", flower.angle, " inf angle ", inf_angle, "sup angle ", sup_angle)
                 if(flower.angle <= inf_angle and flower.angle >= sup_angle):
-                    #AGREGAR FLOR A ARBOL
+                    print("entra especiales")
+                    tree.insert(tree.root,flower)
+                    print("root1") 
             else:
+                print("orientacion")
+                print("angulo de flor", flower.angle, " inf angle ", inf_angle, "sup angle ", sup_angle)
                 if(flower.angle >= inf_angle and flower.angle <= sup_angle):
-                    #AGREGAR FLOR A ARBOL
+                    print("ENTRA")
+                    tree.insert(tree.root,flower)
+                    print("root")
+    print("SALE")
+    tree.print_tree()
+    travers_path(bee,tree)
 
 def main():
 #primera generacion de abejas, totalmente random
@@ -259,6 +291,7 @@ def main():
         angle = randrange(8)
         radio = randrange(8)
         path = randrange(3)
+        print("path", path)
         second_search = randrange(64)
         bee= Bee(color, orientation, angle, radio,path, second_search)
         bee.cromosoma = bee.make_cromosoma()
@@ -272,12 +305,14 @@ def main():
     for i in range(flowers_quantity):
         color_flower = randrange(8)
         angle = randrange(16)
+        print("angle random", angle)
         radio = randrange(16)
+        print("radio random", radio)
         quadrant = randrange(4)
         flower = Flower(color_flower, radio, angle, quadrant)
         flower.cromosoma = flower.make_flower_cromosoma()
         flowers_generation.append(flower)
-        #print("FLOWER #: ", i)
+        print("FLOWER #: ", i)
         flower.to_string()
 
     random_tests()
@@ -285,11 +320,12 @@ def main():
     #Busqueda
     
     for bee in current_generation:
-        search_scope(bee, current_generation)
+        search_scope(bee, flowers_generation)
+        break
   
   
   
-    bees_to_cross = bee_selection(current_generation)
+    """bees_to_cross = bee_selection(current_generation)
     print("Bees to cross\n")
     for bee in bees_to_cross:
         print(bee.to_string())
@@ -315,6 +351,6 @@ def main():
     for flower in new_generation_flowers:
         flower.to_string()
         
-    print(len(new_generation_flowers))
+    print(len(new_generation_flowers))"""
     
 main()

@@ -18,10 +18,13 @@ class Flower():
   def __init__(self,color, radio, angle, quadrant):
     self.color = self.colors[color]
     self.angle = self.angles[angle]
+    self.angle_original = self.angles[angle]
     self.radio = self.radios[radio]
     self.quadrant = quadrant + 1 
     self.polen_other_flowers = []
-  
+    self.transform_angle()
+    print("Angle",self.angle)
+    
   def add_polen(self, flower):
     self.polen_other_flowers.append(flower)
 
@@ -34,7 +37,9 @@ class Flower():
     cromosoma =""
     cromosoma += self.convert_to_binary(self.quadrant, "quadrant")
     cromosoma += self.convert_to_binary(self.radios.index(self.radio), "radio")
-    cromosoma += self.convert_to_binary(self.angles.index(self.angle), "angle")
+    print("angulos", self.angles)
+    print("inidice", self.angles.index(self.angle_original))
+    cromosoma += self.convert_to_binary(self.angles.index(self.angle_original), "angle")
     cromosoma += self.convert_to_binary(self.colors.index(self.color), "color")
     
     return cromosoma
@@ -42,3 +47,12 @@ class Flower():
   def to_string(self):
 
     print(" color: ", self.color, "\n", "cuadrante: ", self.quadrant, "\n", "angulo: ", self.angle, "\n", "radio: ", self.radio,"\n", "Polen de que tiene",self.polen_other_flowers, "\n")
+
+  def transform_angle(self):
+    if self.quadrant == 1:
+        self.angle = 90 + self.angle
+    elif self.quadrant == 2:
+        self.angle = 180 + self.angle
+    elif self.quadrant == 3:
+        self.angle = 270 + self.angle
+        
